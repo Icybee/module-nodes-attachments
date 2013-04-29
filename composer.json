@@ -1,6 +1,6 @@
 {
 	"name": "icybee/module-nodes-attachments",
-	"type": "icybee-module",
+	"type": "icanboogie-module",
 	"description": "Allows files to be attached to nodes.",
 	"keywords": [ "attachment" ],
 	"license": "BSD-3-Clause",
@@ -19,7 +19,7 @@
 	"minimum-stability": "dev",
 	"require": {
 		"php": ">=5.3.0",
-		"icybee/module-installer": "*"
+		"icanboogie/module-installer": "*"
 	},
 	"autoload": {
 		"classmap": [ "lib" ]
