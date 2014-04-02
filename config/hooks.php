@@ -18,7 +18,7 @@ return array
 
 	'prototypes' => array
 	(
-		'Icybee\Modules\Nodes\Node::get_attachments' => $hooks . 'get_attachments'
+		'Icybee\Modules\Nodes\Node::lazy_get_attachments' => $hooks . 'lazy_get_attachments'
 	),
 
 	'patron.markups' => array

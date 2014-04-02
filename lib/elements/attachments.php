@@ -152,7 +152,7 @@ EOT;
 				(
 					array
 					(
-						'data-popover-image' => $node->thumbnail('$popup')->url
+						'data-popover-image' => $node->thumbnail('$popover')->url
 					)
 				);
 			}

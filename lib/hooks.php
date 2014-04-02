@@ -185,7 +185,7 @@ class Hooks
 	 *
 	 * @return array|null An array of attachments or null if there is none.
 	 */
-	static public function get_attachments(Node $ar)
+	static public function lazy_get_attachments(Node $ar)
 	{
 		global $core;
 
@@ -234,7 +234,7 @@ class Hooks
 	 *
 	 * @param Event $event
 	 */
-	static public function on_editblock_alter_children(Event $event, \Icybee\Modules\Nodes\EditBlock $block)
+	static public function on_editblock_alter_children(\Icybee\EditBlock\AlterChildrenEvent $event, \Icybee\Modules\Nodes\EditBlock $block)
 	{
 		global $core;
 
