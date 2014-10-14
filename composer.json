@@ -20,7 +20,7 @@
 	"require": {
 		"php": ">=5.4.0",
 		"icanboogie/module-installer": "*",
-		"icanboogie/nodes": "2.x"
+		"icybee/module-nodes": "2.x"
 	},
 	"autoload": {
 		"classmap": [ "lib" ]
