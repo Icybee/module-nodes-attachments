@@ -3,13 +3,13 @@
 namespace Icybee\Modules\Nodes\Attachments;
 
 use ICanBoogie\ActiveRecord\Model;
-use ICanBoogie\Module;
+use ICanBoogie\Module\Descriptor;
 
 return array
 (
-	Module::T_CATEGORY => 'features',
-	Module::T_DESCRIPTION => "Allows files to be attached to nodes.",
-	Module::T_MODELS => array
+	Descriptor::CATEGORY => 'features',
+	Descriptor::DESCRIPTION => "Allows files to be attached to nodes.",
+	Descriptor::MODELS => array
 	(
 		'primary' => array
 		(
@@ -28,11 +28,11 @@ return array
 		)
 	),
 
-	Module::T_REQUIRES => array
+	Descriptor::REQUIRES => array
 	(
 		'nodes' => '1.0'
 	),
 
-	Module::T_NAMESPACE => __NAMESPACE__,
-	Module::T_TITLE => 'Attachments'
+	Descriptor::NS => __NAMESPACE__,
+	Descriptor::TITLE => 'Attachments'
 );

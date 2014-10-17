@@ -15,6 +15,7 @@ use ICanBoogie\Event;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\I18n;
 use ICanBoogie\I18n\FormattedString;
+use ICanBoogie\Module\Descriptor;
 use ICanBoogie\Operation;
 
 use Brickrouge\Element;
@@ -305,7 +306,7 @@ class Hooks
 			}
 
 			$constructor = strtr($constructor, '.', '_');
-			$scope[$constructor] = I18n\t($descriptor[Module::T_TITLE]);
+			$scope[$constructor] = I18n\t($descriptor[Descriptor::TITLE]);
 		}
 
 		asort($scope);
