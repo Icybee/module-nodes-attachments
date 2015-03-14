@@ -27,7 +27,7 @@ class Hooks
 {
 	static public function on_node_save(Event $event, \Icybee\Modules\Nodes\SaveOperation $operation)
 	{
-		global $core;
+		$app = \ICanBoogie\app();
 
 		$params = &$event->request->params;
 		$nid = $event->rc['key'];
@@ -37,13 +37,13 @@ class Hooks
 			return;
 		}
 
-		$model = $core->models['nodes.attachments'];
+		$model = $app->models['nodes.attachments'];
 
-		$files_model = $core->models['files'];
-		$images_model = $core->models['images'];
+		$files_model = $app->models['files'];
+		$images_model = $app->models['images'];
 
 		$root = \ICanBoogie\DOCUMENT_ROOT;
-		$repository = $core->config['repository.temp'] . '/';
+		$repository = $app->config['repository.temp'] . '/';
 
 		$weight = 0;
 		$attached_fileids = array();
@@ -67,7 +67,7 @@ class Hooks
 					(
 						$attached_params + array
 						(
-							Node::SITEID => $core->site_id,
+							Node::SITEID => $app->site_id,
 							Node::CONSTRUCTOR => 'images'
 						)
 					)
@@ -79,7 +79,7 @@ class Hooks
 					(
 						$attached_params + array
 						(
-							Node::SITEID => $core->site_id,
+							Node::SITEID => $app->site_id,
 							Node::CONSTRUCTOR => 'files'
 						)
 					)
@@ -159,11 +159,9 @@ class Hooks
 	 */
 	static public function on_node_delete(Event $event, \Icybee\Modules\Nodes\DeleteOperation $operation)
 	{
-		global $core;
-
 		//TODO-20120115: if the attachment is hard we should also delete assocated files.
 
-		$core->models['nodes.attachments']->filter_by_nodeid($operation->key)->delete();
+		\ICanBoogie\app()->models['nodes.attachments']->filter_by_nodeid($operation->key)->delete();
 	}
 
 	/**
@@ -174,9 +172,7 @@ class Hooks
 	 */
 	static public function on_file_delete(Event $event, \Icybee\Modules\Files\DeleteOperation $operation)
 	{
-		global $core;
-
-		$core->models['nodes.attachments']->filter_by_fileid($operation->key)->delete();
+		\ICanBoogie\app()->models['nodes.attachments']->filter_by_fileid($operation->key)->delete();
 	}
 
 	/**
@@ -188,11 +184,11 @@ class Hooks
 	 */
 	static public function lazy_get_attachments(Node $ar)
 	{
-		global $core;
+		$app = \ICanBoogie\app();
 
-		$nodes = $core->models['nodes.attachments']
+		$nodes = $app->models['nodes.attachments']
 		->filter_by_nodeid($ar->nid)
-		->joins('INNER JOIN {prefix}nodes ON(nid = fileid)')
+		->join('INNER JOIN {prefix}nodes ON(nid = fileid)')
 		->select('fileid, attachment.title, constructor')
 		->where('is_online = 1')
 		->order('weight')->all(\PDO::FETCH_OBJ);
@@ -214,7 +210,7 @@ class Hooks
 
 		foreach ($ids_by_constructor as $constructor => $ids)
 		{
-			$records = $core->models[$constructor]->find($ids);
+			$records = $app->models[$constructor]->find($ids);
 
 			foreach ($records as $record)
 			{
@@ -233,18 +229,19 @@ class Hooks
 	 * Alters the "edit" block to adds the "attachments" group with a {@link AttachmentsElement} used to
 	 * manage node attachments.
 	 *
-	 * @param Event $event
+	 * @param \Icybee\EditBlock\AlterChildrenEvent $event
+	 * @param \Icybee\Modules\Nodes\EditBlock $block
 	 */
 	static public function on_editblock_alter_children(\Icybee\EditBlock\AlterChildrenEvent $event, \Icybee\Modules\Nodes\EditBlock $block)
 	{
-		global $core;
+		$app = \ICanBoogie\app();
 
 		if ($block instanceof \Icybee\Modules\Files\EditBlock)
 		{
 			return;
 		}
 
-		$scope = $core->registry['nodes_attachments.scope'];
+		$scope = $app->registry['nodes_attachments.scope'];
 
 		if (!$scope)
 		{
@@ -283,15 +280,14 @@ class Hooks
 
 	static public function on_files_configblock_alter_children(Event $event, \Icybee\Modules\Files\ConfigBlock $block)
 	{
-		global $core;
-
 		if (get_class($event->module) != 'Icybee\Modules\Files\Module')
 		{
 			return;
 		}
 
+		$app = \ICanBoogie\app();
 		$scope = array();
-		$modules = $core->modules;
+		$modules = $app->modules;
 
 		foreach ($modules->descriptors as $constructor => $descriptor)
 		{
@@ -311,7 +307,7 @@ class Hooks
 
 		asort($scope);
 
-		$scope_value = $core->registry["nodes_attachments.scope"];
+		$scope_value = $app->registry["nodes_attachments.scope"];
 
 		if ($scope_value)
 		{
@@ -346,8 +342,6 @@ class Hooks
 	 */
 	static public function before_config_operation_properties(Event $event, \Icybee\Modules\Files\ConfigOperation $sender)
 	{
-		global $core;
-
 		if (!isset($event->request->params['global']['nodes_attachments.scope']))
 		{
 			return;

@@ -47,8 +47,6 @@ class AttachmentsElement extends Element
 
 	protected function render_inner_html()
 	{
-		global $core;
-
 		$nid = $this[self::T_NODEID];
 		$hard_bond = $this[self::T_HARD_BOND] ?: false;
 
@@ -56,7 +54,7 @@ class AttachmentsElement extends Element
 
 		if ($nid)
 		{
-			$entries = $core->models['nodes.attachments']->query
+			$entries = \ICanBoogie\app()->models['nodes.attachments']->query
 			(
 				'SELECT {alias}.*, file.nid, file.size, file.path
 				FROM {self} {alias}
@@ -107,8 +105,6 @@ EOT;
 
 	static public function create_attachment($entry, $hard_bond=false) // TODO-20120922: create an Element class instead
 	{
-		global $core;
-
 		$hiddens = null;
 		$links = array();
 
@@ -144,7 +140,7 @@ EOT;
 				$hard_bond ? '<a href="#delete" class="btn btn-danger"><i class="icon-remove icon-white"></i> ' . I18n\t('Delete file') .'</a>' : '<a href="#remove" class="btn btn-warning"><i class="icon-remove"></i> ' . t('Break link') . '</a>'
 			);
 
-			$node = $core->models['nodes'][$entry->nid];
+			$node = \ICanBoogie\app()->models['nodes'][$entry->nid];
 
 			if ($node instanceof \Icybee\Modules\Images\Image)
 			{

@@ -75,8 +75,6 @@ class UploadOperation extends \ICanBoogie\Operation
 
 	protected function process()
 	{
-		global $core;
-
 		$file = $this->file;
 		$path = null;
 
@@ -84,7 +82,7 @@ class UploadOperation extends \ICanBoogie\Operation
 		{
 			$uniqid = uniqid('', true);
 
-			$destination = $core->config['repository.temp'] . '/' . $uniqid . $file->extension;
+			$destination = \ICanBoogie\app()->config['repository.temp'] . '/' . $uniqid . $file->extension;
 
 			$file->move(\ICanBoogie\DOCUMENT_ROOT . $destination, true);
 		}
