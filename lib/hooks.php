@@ -37,10 +37,11 @@ class Hooks
 			return;
 		}
 
-		$model = $app->models['nodes.attachments'];
+		$models = $app->models;
 
-		$files_model = $app->models['files'];
-		$images_model = $app->models['images'];
+		$model = $models['nodes.attachments'];
+		$files_model = $models['files'];
+		$images_model = $models['images'];
 
 		$root = \ICanBoogie\DOCUMENT_ROOT;
 		$repository = $app->config['repository.temp'] . '/';
@@ -63,46 +64,38 @@ class Hooks
 
 				if (getimagesize($root . $path))
 				{
-					$fileid = \Icybee\Modules\Images\Image::from
-					(
-						$attached_params + array
-						(
-							Node::SITEID => $app->site_id,
-							Node::CONSTRUCTOR => 'images'
-						)
-					)
-					->save();
+					$fileid = \Icybee\Modules\Images\Image::from($attached_params + [
+
+						Node::SITEID => $app->site_id,
+						Node::CONSTRUCTOR => 'images'
+
+					])->save();
 				}
 				else
 				{
-					$fileid = \Icybee\Modules\Files\File::from
-					(
-						$attached_params + array
-						(
-							Node::SITEID => $app->site_id,
-							Node::CONSTRUCTOR => 'files'
-						)
-					)
-					->save();
+					$fileid = \Icybee\Modules\Files\File::from($attached_params + [
+
+						Node::SITEID => $app->site_id,
+						Node::CONSTRUCTOR => 'files'
+
+					])->save();
 				}
 
 				if (!$fileid)
 				{
-					$operation->errors[] = new FormattedString('Unable to save file: {0}', array($attached_params));
+					$operation->errors[] = $operation->errors->format('Unable to save file: {0}', [ $attached_params ]);
 
 					continue;
 				}
 
-				$model->save
-				(
-					array
-					(
-						'nodeid' => $nid,
-						'fileid' => $fileid,
-						'title' => $attached_params['title'],
-						'weight' => $weight
-					)
-				);
+				$model->save([
+
+					'nodeid' => $nid,
+					'fileid' => $fileid,
+					'title' => $attached_params['title'],
+					'weight' => $weight
+
+				]);
 
 				$attached_fileids[] = $fileid;
 			}
@@ -114,7 +107,7 @@ class Hooks
 				{
 					$file = $files_model[$fileid];
 
-					$delete_request = Request::from(array('path' => "/api/{$file->constructor}/{$fileid}/delete"));
+					$delete_request = Request::from("/api/{$file->constructor}/{$fileid}/delete");
 					$delete_request->post();
 
 					continue;
@@ -124,13 +117,11 @@ class Hooks
 					continue;
 				}
 
-				$model->execute
-				(
-					'UPDATE {self} SET title = ?, weight = ? WHERE nodeid = ? AND fileid = ?', array
-					(
-						$attached_params['title'], $weight, $nid, $fileid
-					)
-				);
+				$model->execute('UPDATE {self} SET title = ?, weight = ? WHERE nodeid = ? AND fileid = ?', [
+
+					$attached_params['title'], $weight, $nid, $fileid
+
+				]);
 
 				$attached_fileids[] = $fileid;
 			}
@@ -198,8 +189,8 @@ class Hooks
 			return;
 		}
 
-		$nodes_by_id = array();
-		$ids_by_constructor = array();
+		$nodes_by_id = [];
+		$ids_by_constructor = [];
 
 		foreach ($nodes as $node)
 		{
@@ -255,27 +246,20 @@ class Hooks
 			return;
 		}
 
-		$event->attributes[Element::GROUPS]['attachments'] = array
-		(
-			'title' => 'Attachments'
-		);
+		$event->attributes[Element::GROUPS]['attachments'] = [ 'title' => 'Attachments' ];
 
-		$event->children = array_merge
-		(
-			$event->children, array
-			(
-				new AttachmentsElement
-				(
-					array
-					(
-						Element::GROUP => 'attachments',
+		$event->children = array_merge($event->children, [
 
-						AttachmentsElement::T_NODEID => $event->key,
-						AttachmentsElement::T_HARD_BOND => true
-					)
-				)
-			)
-		);
+			new AttachmentsElement([
+
+				Element::GROUP => 'attachments',
+
+				AttachmentsElement::T_NODEID => $event->key,
+				AttachmentsElement::T_HARD_BOND => true
+
+			])
+
+		]);
 	}
 
 	static public function on_files_configblock_alter_children(Event $event, \Icybee\Modules\Files\ConfigBlock $block)
@@ -286,7 +270,7 @@ class Hooks
 		}
 
 		$app = \ICanBoogie\app();
-		$scope = array();
+		$scope = [];
 		$modules = $app->modules;
 
 		foreach ($modules->descriptors as $constructor => $descriptor)
@@ -315,24 +299,23 @@ class Hooks
 			$scope_value = array_combine($scope_value, array_fill(0, count($scope_value), true));
 		}
 
-		$event->attributes[Element::GROUPS]['attachments'] = array
-		(
+		$event->attributes[Element::GROUPS]['attachments'] = [
+
 			'title' => 'Attachments',
 			'weight' => 10
-		);
 
-		$event->children['global[nodes_attachments.scope]'] = new Element
-		(
-			Element::TYPE_CHECKBOX_GROUP, array
-			(
-				Form::LABEL => I18n\t('nodes_attachments.element.label.scope'),
-				Element::OPTIONS => $scope,
-				Element::GROUP => 'attachments',
+		];
 
-				'class' => 'list combo',
-				'value' => $scope_value
-			)
-		);
+		$event->children['global[nodes_attachments.scope]'] = new Element(Element::TYPE_CHECKBOX_GROUP, [
+
+			Form::LABEL => I18n\t('nodes_attachments.element.label.scope'),
+			Element::OPTIONS => $scope,
+			Element::GROUP => 'attachments',
+
+			'class' => 'list combo',
+			'value' => $scope_value
+
+		]);
 	}
 
 	/**
@@ -349,13 +332,11 @@ class Hooks
 
 		$scope = $event->request->params['global']['nodes_attachments.scope'];
 
-		array_walk
-		(
-			$scope, function(&$v)
-			{
-				$v = filter_var($v, FILTER_VALIDATE_BOOLEAN);
-			}
-		);
+		array_walk($scope, function(&$v) {
+
+			$v = filter_var($v, FILTER_VALIDATE_BOOLEAN);
+
+		});
 
 		$scope = array_filter($scope);
 
@@ -399,7 +380,7 @@ class Hooks
 	 *
 	 * @return string|null The rendered attached file(s), or null if no files were attached.
 	 */
-	static public function markup_node_attachments(array $args=array(), \Patron\Engine $patron, $template)
+	static public function markup_node_attachments(array $args = [], \Patron\Engine $patron, $template)
 	{
 		$target = $patron->context['this'];
 		$files = $target->attachments;

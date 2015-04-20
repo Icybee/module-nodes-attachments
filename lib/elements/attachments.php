@@ -31,15 +31,13 @@ class AttachmentsElement extends Element
 		$document->js->add('attachments.js');
 	}
 
-	public function __construct(array $attributes=array())
+	public function __construct(array $attributes = [])
 	{
-		parent::__construct
-		(
-			'div', $attributes + array
-			(
-				Element::WIDGET_CONSTRUCTOR => 'NodeAttachments'
-			)
-		);
+		parent::__construct('div', $attributes + [
+
+			Element::WIDGET_CONSTRUCTOR => 'NodeAttachments'
+
+		]);
 
 		$this->add_class('widget-node-attachments');
 		$this->add_class('resources-files-attached');
@@ -59,10 +57,7 @@ class AttachmentsElement extends Element
 				'SELECT {alias}.*, file.nid, file.size, file.path
 				FROM {self} {alias}
 				INNER JOIN {prefix}files file ON {alias}.fileid = file.nid
-				WHERE nodeid = ?', array
-				(
-					$nid
-				)
+				WHERE nodeid = ?', [ $nid ]
 			)
 			->all(\PDO::FETCH_OBJ);
 
@@ -79,17 +74,15 @@ class AttachmentsElement extends Element
 		$limit = ini_get('upload_max_filesize') * 1024 * 1024;
 		$limit_formated = \ICanBoogie\I18n\format_size($limit);
 
-		$label_join = I18n\t('Add a new attachment');
-		$label_limit = I18n\t('The maximum size for each attachment is :size', array(':size' => $limit_formated));
+		$label_join = $this->t('Add a new attachment');
+		$label_limit = $this->t('The maximum size for each attachment is :size', [ ':size' => $limit_formated ]);
 
-		$label_join = new \Brickrouge\File
-		(
-			array
-			(
-				\Brickrouge\File::FILE_WITH_LIMIT => $limit / 1024,
-				\Brickrouge\File::T_UPLOAD_URL => '/api/nodes.attachments/upload'
-			)
-		);
+		$label_join = new \Brickrouge\File([
+
+			\Brickrouge\File::FILE_WITH_LIMIT => $limit / 1024,
+			\Brickrouge\File::T_UPLOAD_URL => '/api/nodes.attachments/upload'
+
+		]);
 
 		return <<<EOT
 <ol>
@@ -106,7 +99,7 @@ EOT;
 	static public function create_attachment($entry, $hard_bond=false) // TODO-20120922: create an Element class instead
 	{
 		$hiddens = null;
-		$links = array();
+		$links = [];
 
 		$i = uniqid();
 		$size = \ICanBoogie\I18n\format_size($entry->size);
@@ -120,10 +113,11 @@ EOT;
 			$hiddens .= '<input type="hidden" class="file" name="nodes_attachments[' . $i .'][file]" value="' . \ICanBoogie\escape(basename($entry->location)) . '" />' . PHP_EOL;
 			$hiddens .= '<input type="hidden" name="nodes_attachments[' . $i .'][mime]" value="' . \ICanBoogie\escape($entry->mime) . '" />' . PHP_EOL;
 
-			$links = array
-			(
+			$links = [
+
 				'<a href="#remove" class="btn btn-warning">' . I18n\t('label.remove') . '</a>'
-			);
+
+			];
 		}
 		else
 		{
@@ -133,24 +127,23 @@ EOT;
 
 			$hiddens .= '<input type="hidden" name="nodes_attachments[' . $i .'][fileid]" value="' . $fid . '" />';
 
-			$links = array
-			(
+			$links = [
+
 				'<a href="' . \ICanBoogie\Routing\contextualize('/admin/files/' . $fid . '/edit') . '" class="btn"><i class="icon-pencil"></i> ' . I18n\t('label.edit') .'</a>',
 				'<a href="' . Operation::encode('files/' . $fid . '/download') . '" class="btn"><i class="icon-download-alt"></i> ' . I18n\t('label.download') . '</a>',
 				$hard_bond ? '<a href="#delete" class="btn btn-danger"><i class="icon-remove icon-white"></i> ' . I18n\t('Delete file') .'</a>' : '<a href="#remove" class="btn btn-warning"><i class="icon-remove"></i> ' . t('Break link') . '</a>'
-			);
+
+			];
 
 			$node = \ICanBoogie\app()->models['nodes'][$entry->nid];
 
 			if ($node instanceof \Icybee\Modules\Images\Image)
 			{
-				$preview = $node->thumbnail('$icon')->to_element
-				(
-					array
-					(
-						'data-popover-image' => $node->thumbnail('$popover')->url
-					)
-				);
+				$preview = $node->thumbnail('$icon')->to_element([
+
+					'data-popover-image' => $node->thumbnail('$popover')->url
+
+				]);
 			}
 		}
 

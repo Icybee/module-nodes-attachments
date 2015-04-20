@@ -30,7 +30,7 @@ class UploadOperation extends \ICanBoogie\Operation
 		#
 		# TODO-20100624: we should use the `accept` parameter.
 		#
-
+// FIXME-2015040: This class does not exists anymore!
 		$file = new Uploaded
 		(
 			'Filedata', /*array
@@ -82,7 +82,7 @@ class UploadOperation extends \ICanBoogie\Operation
 		{
 			$uniqid = uniqid('', true);
 
-			$destination = \ICanBoogie\app()->config['repository.temp'] . '/' . $uniqid . $file->extension;
+			$destination = $this->app->config['repository.temp'] . '/' . $uniqid . $file->extension;
 
 			$file->move(\ICanBoogie\DOCUMENT_ROOT . $destination, true);
 		}
