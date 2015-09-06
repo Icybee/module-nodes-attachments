@@ -5,34 +5,29 @@ namespace Icybee\Modules\Nodes\Attachments;
 use ICanBoogie\ActiveRecord\Model;
 use ICanBoogie\Module\Descriptor;
 
-return array
-(
+return [
+
 	Descriptor::CATEGORY => 'features',
 	Descriptor::DESCRIPTION => "Allows files to be attached to nodes.",
-	Descriptor::MODELS => array
-	(
-		'primary' => array
-		(
+	Descriptor::MODELS => [
+
+		'primary' => [
+
 			Model::CLASSNAME => 'ICanBoogie\ActiveRecord\Model',
 			Model::ACTIVERECORD_CLASS => 'ICanBoogie\ActiveRecord',
-			Model::SCHEMA => array
-			(
-				'fields' => array
-				(
-					'nodeid' => array('foreign', 'primary' => true),
-					'fileid' => array('foreign', 'primary' => true),
-					'title' => 'varchar',
-					'weight' => array('integer', 'tiny', 'unsigned' => true)
-				)
-			)
-		)
-	),
+			Model::SCHEMA => [
 
-	Descriptor::REQUIRES => array
-	(
-		'nodes' => '1.0'
-	),
+				'nodeid' => [ 'foreign', 'primary' => true ],
+				'fileid' => [ 'foreign', 'primary' => true ],
+				'title' => 'varchar',
+				'weight' => [ 'integer', 'tiny', 'unsigned' => true ]
 
+			]
+		]
+	],
+
+	Descriptor::REQUIRES => [ 'nodes' ],
 	Descriptor::NS => __NAMESPACE__,
 	Descriptor::TITLE => 'Attachments'
-);
+
+];

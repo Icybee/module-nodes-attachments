@@ -18,11 +18,13 @@
 	},
 	"minimum-stability": "dev",
 	"require": {
-		"php": ">=5.4.0",
-		"icanboogie/module-installer": "*",
-		"icybee/module-nodes": "2.x"
+		"php": ">=5.5.0",
+		"icanboogie/module-installer": "^1.2.3",
+		"icybee/module-nodes": "^3.0.0"
 	},
 	"autoload": {
-		"classmap": [ "lib" ]
+		"psr-4": {
+			"Icybee\\Modules\\Nodes\\Attachments\\": "lib"
+		}
 	}
 }

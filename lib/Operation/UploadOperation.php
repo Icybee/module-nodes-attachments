@@ -9,18 +9,21 @@
  * file that was distributed with this source code.
  */
 
-namespace Icybee\Modules\Nodes\Attachments;
+namespace Icybee\Modules\Nodes\Attachments\Operation;
 
-use ICanBoogie\Uploaded;
+use ICanBoogie\Errors;
+use ICanBoogie\Operation;
 
-class UploadOperation extends \ICanBoogie\Operation
+use Icybee\Modules\Nodes\Attachments\Element\AttachmentsElement;
+
+class UploadOperation extends Operation
 {
 	/**
 	 * @var Uploaded
 	 */
 	protected $file;
 
-	protected function validate(\ICanboogie\Errors $errors)
+	protected function validate(Errors $errors)
 	{
 		#
 		# TODO-20100624: we use 'Filedata' because it's used by Swiff.Uploader, we have to change

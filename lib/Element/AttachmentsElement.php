@@ -9,10 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Icybee\Modules\Nodes\Attachments;
+namespace Icybee\Modules\Nodes\Attachments\Element;
 
 use ICanBoogie\I18n;
-use ICanBoogie\Uploaded;
 use ICanBoogie\Operation;
 
 use Brickrouge\Element;
@@ -23,12 +22,12 @@ class AttachmentsElement extends Element
 	const T_NODEID = '#attachments-nodeid';
 	const T_HARD_BOND = '#attachments-hard-bond';
 
-	static protected function add_assets(\Brickrouge\Document $document)
+	static protected function add_assets(Document $document)
 	{
 		parent::add_assets($document);
 
-		$document->css->add('attachments.css');
-		$document->js->add('attachments.js');
+		$document->css->add(__DIR__ . '/AttachmentsElement.css');
+		$document->js->add(__DIR__ . '/AttachmentsElement.js');
 	}
 
 	public function __construct(array $attributes = [])

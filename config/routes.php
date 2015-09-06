@@ -1,13 +1,11 @@
 <?php
 
-return array
-(
-	'files:admin/config' => array
-	(
-		'pattern' => '/admin/files/config',
-		'module' => 'files',
-		'title' => 'Config.',
-		'block' => 'config',
-// 		'workspace' => 'resources'
-	)
-);
+namespace Icybee\Modules\Nodes\Attachments;
+
+use Icybee\Routing\RouteMaker as Make;
+
+return Make::admin('nodes.attachments', Routing\AttachmentAdminController::class, [
+
+	'only' => 'config'
+
+]);
