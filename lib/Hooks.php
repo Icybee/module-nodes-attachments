@@ -21,11 +21,12 @@ use ICanBoogie\Operation;
 use Brickrouge\Element;
 use Brickrouge\Form;
 
+use Icybee\Modules\Nodes\Attachments\Element\AttachmentsElement;
 use Icybee\Modules\Nodes\Node;
 
 class Hooks
 {
-	static public function on_node_save(Event $event, \Icybee\Modules\Nodes\SaveOperation $operation)
+	static public function on_node_save(Event $event, \Icybee\Modules\Nodes\Operation\SaveOperation $operation)
 	{
 		$app = \ICanBoogie\app();
 
@@ -66,7 +67,7 @@ class Hooks
 				{
 					$fileid = \Icybee\Modules\Images\Image::from($attached_params + [
 
-						Node::SITEID => $app->site_id,
+						Node::SITE_ID => $app->site_id,
 						Node::CONSTRUCTOR => 'images'
 
 					])->save();
@@ -75,7 +76,7 @@ class Hooks
 				{
 					$fileid = \Icybee\Modules\Files\File::from($attached_params + [
 
-						Node::SITEID => $app->site_id,
+						Node::SITE_ID => $app->site_id,
 						Node::CONSTRUCTOR => 'files'
 
 					])->save();
@@ -133,22 +134,20 @@ class Hooks
 		# we remove the link to unspecified files.
 		#
 
-		$model->execute
-		(
-			'DELETE FROM {self} WHERE nodeid = ?' . ($attached_fileids ? ' AND fileid NOT IN(' . implode(',', $attached_fileids) . ')' : ''), array
-			(
-				$nid
-			)
-		);
+		$model->execute('DELETE FROM {self} WHERE nodeid = ?' . ($attached_fileids ? ' AND fileid NOT IN(' . implode(',', $attached_fileids) . ')' : ''), [
+
+			$nid
+
+		]);
 	}
 
 	/**
 	 * Deletes attachment when the associated node is delete.
 	 *
 	 * @param Event $event
-	 * @param \Icybee\Modules\Nodes\DeleteOperation $operation
+	 * @param \Icybee\Modules\Nodes\Operation\DeleteOperation $operation
 	 */
-	static public function on_node_delete(Event $event, \Icybee\Modules\Nodes\DeleteOperation $operation)
+	static public function on_node_delete(Event $event, \Icybee\Modules\Nodes\Operation\DeleteOperation $operation)
 	{
 		//TODO-20120115: if the attachment is hard we should also delete assocated files.
 
@@ -159,9 +158,9 @@ class Hooks
 	 * Deletes attachment when the associated file is deleted.
 	 *
 	 * @param Event $event
-	 * @param \Icybee\Modules\Files\DeleteOperation $operation
+	 * @param \Icybee\Modules\Files\Operation\DeleteOperation $operation
 	 */
-	static public function on_file_delete(Event $event, \Icybee\Modules\Files\DeleteOperation $operation)
+	static public function on_file_delete(Event $event, \Icybee\Modules\Files\Operation\DeleteOperation $operation)
 	{
 		\ICanBoogie\app()->models['nodes.attachments']->filter_by_fileid($operation->key)->delete();
 	}
@@ -220,10 +219,10 @@ class Hooks
 	 * Alters the "edit" block to adds the "attachments" group with a {@link AttachmentsElement} used to
 	 * manage node attachments.
 	 *
-	 * @param \Icybee\EditBlock\AlterChildrenEvent $event
-	 * @param \Icybee\Modules\Nodes\EditBlock $block
+	 * @param \Icybee\Block\EditBlock\AlterChildrenEvent $event
+	 * @param \Icybee\Modules\Nodes\Block\EditBlock $block
 	 */
-	static public function on_editblock_alter_children(\Icybee\EditBlock\AlterChildrenEvent $event, \Icybee\Modules\Nodes\EditBlock $block)
+	static public function on_editblock_alter_children(\Icybee\Block\EditBlock\AlterChildrenEvent $event, \Icybee\Modules\Nodes\Block\EditBlock $block)
 	{
 		$app = \ICanBoogie\app();
 
@@ -262,7 +261,7 @@ class Hooks
 		]);
 	}
 
-	static public function on_files_configblock_alter_children(Event $event, \Icybee\Modules\Files\ConfigBlock $block)
+	static public function on_files_configblock_alter_children(Event $event, \Icybee\Modules\Files\Block\ConfigBlock $block)
 	{
 		if (get_class($event->module) != 'Icybee\Modules\Files\Module')
 		{
@@ -323,7 +322,7 @@ class Hooks
 	 *
 	 * @param Event $event
 	 */
-	static public function before_config_operation_properties(Event $event, \Icybee\Modules\Files\ConfigOperation $sender)
+	static public function before_config_operation_properties(Event $event, \Icybee\Modules\Files\Operation\ConfigOperation $sender)
 	{
 		if (!isset($event->request->params['global']['nodes_attachments.scope']))
 		{
@@ -375,7 +374,7 @@ class Hooks
  	 * Attachments are created using the "resources.files.attached" module.
 	 *
 	 * @param array $args
-	 * @param Patron\Engine $patron
+	 * @param \Patron\Engine $patron
 	 * @param string|null $template
 	 *
 	 * @return string|null The rendered attached file(s), or null if no files were attached.
@@ -387,7 +386,7 @@ class Hooks
 
 		if (!$files)
 		{
-			return;
+			return null;
 		}
 
 		$rc = '<div class="node-attachments">';

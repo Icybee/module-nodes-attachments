@@ -17,8 +17,12 @@ use ICanBoogie\Operation;
 use Brickrouge\Element;
 use Brickrouge\Document;
 
+use Icybee\Binding\Core\PrototypedBindings;
+
 class AttachmentsElement extends Element
 {
+	use PrototypedBindings;
+
 	const T_NODEID = '#attachments-nodeid';
 	const T_HARD_BOND = '#attachments-hard-bond';
 
@@ -34,7 +38,7 @@ class AttachmentsElement extends Element
 	{
 		parent::__construct('div', $attributes + [
 
-			Element::WIDGET_CONSTRUCTOR => 'NodeAttachments'
+			Element::IS => 'NodeAttachments'
 
 		]);
 
@@ -51,18 +55,18 @@ class AttachmentsElement extends Element
 
 		if ($nid)
 		{
-			$entries = \ICanBoogie\app()->models['nodes.attachments']->query
+			$records = $this->app->models['nodes.attachments']->query
 			(
-				'SELECT {alias}.*, file.nid, file.size, file.path
+				'SELECT {alias}.*, file.nid, file.size, file.extension
 				FROM {self} {alias}
 				INNER JOIN {prefix}files file ON {alias}.fileid = file.nid
 				WHERE nodeid = ?', [ $nid ]
 			)
 			->all(\PDO::FETCH_OBJ);
 
-			foreach ($entries as $entry)
+			foreach ($records as $record)
 			{
-				$lines .= self::create_attachment($entry, $hard_bond);
+				$lines .= self::create_attachment($record, $hard_bond);
 			}
 		}
 
@@ -95,22 +99,22 @@ $label_join
 EOT;
 	}
 
-	static public function create_attachment($entry, $hard_bond=false) // TODO-20120922: create an Element class instead
+	static public function create_attachment($record, $hard_bond=false) // TODO-20120922: create an Element class instead
 	{
 		$hiddens = null;
 		$links = [];
 
 		$i = uniqid();
-		$size = \ICanBoogie\I18n\format_size($entry->size);
+		$size = \ICanBoogie\I18n\format_size($record->size);
 		$preview = null;
 
-		if ($entry instanceof Uploaded)
+		if ($record instanceof Uploaded)
 		{
-			$title = $entry->name;
-			$extension = $entry->extension;
+			$title = $record->name;
+			$extension = $record->extension;
 
-			$hiddens .= '<input type="hidden" class="file" name="nodes_attachments[' . $i .'][file]" value="' . \ICanBoogie\escape(basename($entry->location)) . '" />' . PHP_EOL;
-			$hiddens .= '<input type="hidden" name="nodes_attachments[' . $i .'][mime]" value="' . \ICanBoogie\escape($entry->mime) . '" />' . PHP_EOL;
+			$hiddens .= '<input type="hidden" class="file" name="nodes_attachments[' . $i .'][file]" value="' . \ICanBoogie\escape(basename($record->location)) . '" />' . PHP_EOL;
+			$hiddens .= '<input type="hidden" name="nodes_attachments[' . $i .'][mime]" value="' . \ICanBoogie\escape($record->mime) . '" />' . PHP_EOL;
 
 			$links = [
 
@@ -120,21 +124,21 @@ EOT;
 		}
 		else
 		{
-			$fid = $entry->nid;
-			$title = $entry->title;
-			$extension = substr($entry->path, strrpos($entry->path, '.'));
+			$fid = $record->nid;
+			$title = $record->title;
+			$extension = $record->extension;
 
 			$hiddens .= '<input type="hidden" name="nodes_attachments[' . $i .'][fileid]" value="' . $fid . '" />';
 
 			$links = [
 
-				'<a href="' . \ICanBoogie\Routing\contextualize('/admin/files/' . $fid . '/edit') . '" class="btn"><i class="icon-pencil"></i> ' . I18n\t('label.edit') .'</a>',
+				'<a href="' . \ICanBoogie\app()->url_for('admin:files:edit', $record) . '" class="btn"><i class="icon-pencil"></i> ' . I18n\t('label.edit') .'</a>',
 				'<a href="' . Operation::encode('files/' . $fid . '/download') . '" class="btn"><i class="icon-download-alt"></i> ' . I18n\t('label.download') . '</a>',
 				$hard_bond ? '<a href="#delete" class="btn btn-danger"><i class="icon-remove icon-white"></i> ' . I18n\t('Delete file') .'</a>' : '<a href="#remove" class="btn btn-warning"><i class="icon-remove"></i> ' . t('Break link') . '</a>'
 
 			];
 
-			$node = \ICanBoogie\app()->models['nodes'][$entry->nid];
+			$node = \ICanBoogie\app()->models['nodes'][$record->nid];
 
 			if ($node instanceof \Icybee\Modules\Images\Image)
 			{
